@@ -1,17 +1,10 @@
-# easyjson
+package com.jpro.easyjson;
 
-Make JSON parsing&amp;building easy.
+import org.junit.Test;
 
-## dependency
-
-Only one, Jackson.
-
-## Usage
-
-See unit test directory.
-
-```java
-import com.jpro.easyjson.Json;  // The only one class need to import!
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EasyJson {
     @Test
@@ -48,4 +41,3 @@ public class EasyJson {
         System.out.println(json.dumps());
     }
 }
-```
