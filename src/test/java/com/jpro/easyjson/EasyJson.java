@@ -40,4 +40,11 @@ public class EasyJson {
         Json json = new Json("data", Json.array(new ArrayList<String>() {{ add("a"); add("b"); add("c"); }}));
         System.out.println(json.dumps());
     }
+
+    @Test
+    public void mergeJson() {
+        Json origin = new Json().put("outer", new Json().put("inner_one", 12));
+        Json others = new Json().put("outer", new Json().put("inner_two", "from others")).put("app", "context");
+        System.out.println(origin.merge(others).dumps());
+    }
 }

@@ -1,5 +1,6 @@
 package com.jpro.easyjson;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -259,6 +260,15 @@ public class Json {
             }
         }
         return inner;
+    }
+
+    public static Map<String, Object> asMap(String json) {
+        try {
+            return (Map<String,Object>) objectMapper.readValue(json, Map.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return new HashMap<>();
+        }
     }
 
     /**
