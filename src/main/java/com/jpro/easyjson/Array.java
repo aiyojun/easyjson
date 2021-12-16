@@ -1,17 +1,17 @@
 package com.jpro.easyjson;
 
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import java.util.Collection;
+import java.util.*;
 
 /**
  * JsonArray type, prepared for Json!
  * You shouldn't create JsonArray by this class.
  * Create JsonArray by Json::array() method, instead!
  */
-public class Array extends Json {
-
+public class Array extends Json implements Iterable<Json> {
     /**
      * Construct an empty JsonArray!
      */
@@ -23,6 +23,11 @@ public class Array extends Json {
      * Construct an initialized JsonArray by the specific collection!
      */
     public <E> Array(Collection<E> collection) { this(); collection.forEach(this::add); }
+
+    public Json get(int index) {
+        JsonNode node = root.get(index);
+        return new Json() {{root = node;}};
+    }
 
     /**
      * Adding element of JsonArray.
@@ -44,6 +49,35 @@ public class Array extends Json {
         return this;
     }
 
+    public List<Object> asList() {
+        if (root.isEmpty()) return new ArrayList<>();
+        List<Object> inner = new ArrayList<>(root.size());
+        for (int k = 0; k < root.size(); k++) {
+            if (root.get(k).isObject()) {
+                inner.add(new Json(root.get(k)).asMap());
+            } else if (root.get(k).isArray()) {
+                inner.add(new Json(root.get(k)).toArray().asList());
+            } else if (root.get(k).isTextual()) {
+                inner.add(root.get(k).asText());
+            } else if (root.get(k).isBoolean()) {
+                inner.add(root.get(k).asBoolean());
+            } else if (root.get(k).isLong()) {
+                inner.add(root.get(k).asLong());
+            } else if (root.get(k).isInt()) {
+                inner.add(root.get(k).asInt());
+            } else if (root.get(k).isDouble()) {
+                inner.add(root.get(k).asDouble());
+            } else if (root.get(k).isFloat()) {
+                inner.add(root.get(k).asDouble());
+            } else if (root.get(k).isNull()) {
+                inner.add(root.get(k).asDouble());
+            } else {
+                throw new RuntimeException("Unknown key(" + k + ") type : " + root.get(k).getNodeType().toString());
+            }
+        }
+        return inner;
+    }
+
     /**
      * To JSON string of JsonArray!
      */
@@ -54,4 +88,26 @@ public class Array extends Json {
      */
     @Override
     public String toString() { return dumps(); }
+
+    @Override
+    public Iterator<Json> iterator() {
+        return new Iter();
+    }
+
+    private class Iter implements Iterator<Json> {
+        private int cursor;
+
+        @Override
+        public boolean hasNext() {
+            return cursor != root.size();
+        }
+
+        @Override
+        public Json next() {
+            if (cursor >= root.size()) throw new NoSuchElementException();
+            JsonNode pr = root.get(cursor);
+            cursor++;
+            return new Json() {{root = pr;}};
+        }
+    }
 }
